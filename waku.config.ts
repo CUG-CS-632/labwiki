@@ -4,6 +4,7 @@ import press from "fumapress/vite";
 import mdx from "fumadocs-mdx/vite";
 
 export default defineConfig({
+  basePath: "/labwiki/",
   vite: {
     plugins: [press(), mdx(), tailwindcss()],
   },
