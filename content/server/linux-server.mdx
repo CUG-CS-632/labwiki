@@ -1,0 +1,69 @@
+---
+title: Linux CPU 服务器
+description: Linux CPU 服务器配置、科研用途和目录建议
+icon: Terminal
+---
+
+# Linux CPU 服务器
+
+`lab632` 是实验室的 Linux CPU 服务器，主要用于 MATLAB、Python 等科研计算任务。服务器已配置 SSH 服务，可通过命令行或 VSCode Remote-SSH 连接；也已部署 XRdp，可通过远程桌面进入 Linux 图形界面。
+
+## 基本信息
+
+| 项目 | 信息 |
+|------|------|
+| 主机名 | `lab632` |
+| 域名 | `lab632.pibonds.com` |
+| 操作系统 | Linux Mint 22.1 x86_64 |
+| 设备型号 | Dell Precision 7920 Tower |
+| Shell | Bash 5.2 |
+| 区域设置 | `en_US.UTF-8` |
+
+## 查询当前 IP
+
+服务器 IP 可能变化，Wiki 不记录固定 IP。需要确认当前地址时，可登录 Linux CPU 服务器后在终端中运行：
+
+```bash
+hostname -I
+```
+
+也可以使用 `ip addr` 查看更完整的网卡信息。
+
+## 硬件配置
+
+| 组件 | 规格 |
+|------|------|
+| CPU | 2 × Intel Xeon Gold 6226R，最高约 3.90 GHz |
+| GPU | NVIDIA RTX A2000，不作为主要 GPU 计算资源 |
+| 内存 | 约 189 GiB |
+| Swap | 约 1.91 GiB |
+| 系统盘 | `/`，约 1.79 TiB，ext4 |
+| 数据盘 | `/mnt/diskD`，约 7.28 TiB，fuseblk |
+
+## 适用场景
+
+- MATLAB 科研计算
+- 以 CPU 为主的 Python 科研任务
+- Linux 环境下的数据处理、实验脚本和批处理任务
+- 需要长时间稳定运行的命令行任务
+- 通过 VSCode Remote-SSH 远程编辑和运行实验代码
+
+如果任务既需要 GPU 又需要 Linux 环境，优先在 Windows GPU 服务器中自行安装 WSL 完成。
+
+## 目录建议
+
+| 位置 | 建议用途 |
+|------|----------|
+| `~` | 个人配置、轻量脚本、实验代码 |
+| `/mnt/diskD` | 数据集、实验结果、中间文件等大文件 |
+| `/tmp` | 临时文件，不能假定长期保留 |
+
+如果项目会产生大量中间文件，建议放在数据盘或项目指定目录，避免占满系统盘。
+
+## 使用注意
+
+- Linux CPU 服务器如需创建用户，请联系管理员。
+- 长时间任务建议放在 `tmux`、`screen` 或类似会话管理工具中运行，避免本地网络中断导致任务退出。
+- 大型 MATLAB 或 Python 任务运行前先确认 CPU、内存和磁盘占用。
+- 运行实验时建议记录参数和输出目录，避免中断后难以恢复。
+- 如果需要安装系统级依赖，先联系管理员；个人 Python 环境优先安装在用户目录下。

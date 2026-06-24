@@ -1,0 +1,6 @@
+{
+  "title": "服务器",
+  "pages": ["index", "windows-server", "linux-server", "remote-desktop", "ssh-vscode", "smb"],
+  "defaultOpen": true,
+  "icon": "Server"
+}

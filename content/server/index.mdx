@@ -1,0 +1,58 @@
+---
+title: 概览
+description: 实验室服务器定位、用途和连接入口
+---
+
+# 服务器
+
+实验室目前主要使用两台服务器：Windows GPU 服务器用于 GPU 计算、Windows 环境和文件共享；Linux CPU 服务器用于以 CPU 计算为主的 MATLAB、Python 科研任务。
+
+## 服务器定位
+
+| 项目 | Windows GPU 服务器 | Linux CPU 服务器 |
+|------|-------------------|------------------|
+| 主机名 | `LAB632G` | `lab632` |
+| 域名 | `lab632g.pibonds.com` | `lab632.pibonds.com` |
+| 操作系统 | Windows Server 2025 Standard 24H2 | Linux Mint 22.1 |
+| 硬件平台 | Dell Precision 7920 Tower | Dell Precision 7920 Tower |
+| CPU | 2 × Intel Xeon Gold 6246R | 2 × Intel Xeon Gold 6226R |
+| GPU | 2 × NVIDIA GeForce RTX 3090 | 不作为主要 GPU 计算资源 |
+| 内存 | 384 GiB 级别 | 189 GiB 级别 |
+| 主要用途 | GPU 计算、Windows 软件、文件共享 | MATLAB、Python、CPU 科研计算 |
+
+## 怎么选择
+
+| 场景 | 建议 |
+|------|------|
+| 深度学习训练、推理、CUDA 任务 | 优先使用 Windows GPU 服务器 |
+| 需要图形界面操作 Windows 软件 | 使用 Windows GPU 服务器并通过 RDP 连接 |
+| MATLAB 或以 CPU 为主的 Python 科研任务 | 优先使用 Linux CPU 服务器 |
+| 需要 Linux 环境和 GPU | 在 Windows GPU 服务器中自行安装 WSL |
+| 需要 VSCode Remote SSH | 两台服务器都已配置 SSH，可按任务类型选择 |
+| 文件共享或常用科研软件下载 | 使用 Windows GPU 服务器上的 SMB 共享 |
+
+## 快速开始
+
+| 连接方式 | 适用服务器 | 文档 |
+|----------|------------|------|
+| 远程桌面 | Windows GPU 服务器、Linux CPU 服务器 | [远程桌面](/server/remote-desktop) |
+| SSH 命令行 | Windows GPU 服务器、Linux CPU 服务器 | [SSH 与 VSCode](/server/ssh-vscode) |
+| VSCode Remote SSH | Windows GPU 服务器、Linux CPU 服务器 | [SSH 与 VSCode](/server/ssh-vscode) |
+| SMB 文件共享 | Windows GPU 服务器 | [SMB 文件共享](/server/smb) |
+
+## 账号与网络
+
+- Windows GPU 服务器已经预设实验室成员账号，用户名默认为姓名全拼（全小写）。
+- Windows GPU 服务器默认密码规则为：姓的大写首字母 + 名的小写首字母 + `@` + 学号。
+- Windows GPU 服务器如需新增用户，请联系管理员。
+- Linux CPU 服务器如需创建用户，请联系管理员。
+- 如果在校外访问，通常需要先连接学校或实验室 VPN；在校内网络可优先使用域名连接。
+- 服务器 IP 可能变化，Wiki 不记录固定 IP。需要确认当前地址时，请登录对应服务器后查询：
+  - Windows：在 CMD 或 PowerShell 中运行 `ipconfig`
+  - Linux：在终端中运行 `hostname -I` 或 `ip addr`
+
+## 后续由管理员补充
+
+- GPU 使用规范，例如任务排队、显存占用、长时间任务说明
+- MATLAB、Python 环境版本和推荐启动方式
+- 数据备份策略和重要目录说明

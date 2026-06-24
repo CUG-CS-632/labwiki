@@ -1,0 +1,138 @@
+---
+title: SSH 与 VSCode
+description: 通过 SSH 和 VSCode Remote-SSH 连接服务器
+icon: SquareTerminal
+---
+
+# SSH 与 VSCode
+
+两台服务器都已配置 SSH 服务，可以通过终端连接，也可以使用 VSCode 的 Remote-SSH 插件远程编辑脚本、运行程序和管理实验文件。
+
+## 连接信息
+
+| 服务器 | 域名 | 主要用途 |
+|--------|------|----------|
+| Windows GPU 服务器 | `lab632g.pibonds.com` | GPU 计算、Windows 环境、共享文件 |
+| Linux CPU 服务器 | `lab632.pibonds.com` | MATLAB、Python、CPU 科研计算 |
+
+下面示例中的 `username` 替换为你的服务器账号。
+
+## SSH 命令行连接
+
+Windows 10/11、macOS 和多数 Linux 发行版都自带 SSH 客户端。Windows 可使用 PowerShell 或 CMD，macOS/Linux 可使用终端。
+
+| 目标服务器 | 命令 |
+|------------|------|
+| Windows GPU 服务器 | `ssh username@lab632g.pibonds.com` |
+| Linux CPU 服务器 | `ssh username@lab632.pibonds.com` |
+
+服务器 IP 可能变化，建议优先使用域名连接。确需当前 IP 时，请登录对应服务器后查询，不要把临时 IP 写入长期配置。
+
+## 配置 SSH 密钥
+
+为了避免每次输入密码，可以配置 SSH 密钥认证。
+
+### 生成密钥对
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+一路回车使用默认路径即可。如果本地已经有 SSH 密钥，可以先跳过这一步。
+
+### 复制公钥到 Linux 服务器
+
+```bash
+ssh-copy-id username@lab632.pibonds.com
+```
+
+### 复制公钥到 Windows 服务器
+
+Windows Server 不一定支持 `ssh-copy-id`。可先用密码登录服务器，再把本机公钥内容追加到服务器用户目录下的 `authorized_keys` 文件：
+
+```powershell
+notepad $env:USERPROFILE\.ssh\authorized_keys
+```
+
+将本机 `~/.ssh/id_ed25519.pub` 或 `%USERPROFILE%\.ssh\id_ed25519.pub` 的内容复制进去并保存。目录或文件不存在时先创建。
+
+### 测试免密登录
+
+```bash
+ssh username@lab632g.pibonds.com
+ssh username@lab632.pibonds.com
+```
+
+## SSH 配置文件
+
+编辑 `~/.ssh/config`（macOS/Linux）或 `%USERPROFILE%\.ssh\config`（Windows），添加以下配置：
+
+```text
+Host lab632g
+    HostName lab632g.pibonds.com
+    User username
+
+Host lab632
+    HostName lab632.pibonds.com
+    User username
+```
+
+配置后可以使用简短的别名连接：
+
+```bash
+ssh lab632g
+ssh lab632
+```
+
+如果经常遇到域名解析问题，先确认当前网络和 DNS 状态；确需使用 IP 时，请先在对应服务器上查询当前地址。
+
+## VSCode Remote SSH
+
+使用 VSCode 的 Remote - SSH 插件可以直接在本地 VSCode 中编辑服务器上的脚本、配置和实验文件。
+
+### 安装插件
+
+1. 打开 VSCode
+2. 打开扩展面板（`Ctrl+Shift+X` / `Cmd+Shift+X`）
+3. 搜索 **Remote - SSH**
+4. 安装 Microsoft 官方的 Remote - SSH 插件
+
+### 连接服务器
+
+1. 点击 VSCode 左下角的绿色远程连接图标
+2. 选择「Connect to Host...」
+3. 输入服务器地址：`username@lab632g.pibonds.com` 或 `username@lab632.pibonds.com`
+4. 选择操作系统类型（Windows / Linux）
+5. 输入密码（如已配置密钥则无需输入）
+
+### 打开远程文件夹
+
+连接成功后：
+
+1. 点击「File」→「Open Folder」
+2. 选择服务器上的工作目录
+3. 点击「OK」即可开始远程编辑和运行任务
+
+### 使用 SSH 配置文件
+
+如果已配置 `~/.ssh/config`，VSCode 会自动读取其中的 Host 配置，直接在连接列表中显示。
+
+## 常见问题
+
+### 连接超时
+
+- 确认网络可以访问服务器（可能需要在校内网络或 VPN 下）
+- 检查域名解析是否正常：`ping lab632g.pibonds.com` 或 `ping lab632.pibonds.com`
+- 如果需要用 IP 排查，请先登录对应服务器查询当前 IP 地址
+
+### 权限被拒绝
+
+- 确认用户名和密码正确
+- 检查服务器是否允许该用户 SSH 登录
+- 如果使用密钥登录失败，先用密码登录，再检查服务器上的 `authorized_keys`
+
+### VSCode 连接后插件不工作
+
+- 远程服务器上需要安装对应的 VSCode Server
+- 首次连接会自动安装，需要等待片刻
+- Windows 服务器和 Linux 服务器的插件环境互相独立，需要分别安装远程端插件
