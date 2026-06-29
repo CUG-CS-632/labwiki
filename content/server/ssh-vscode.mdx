@@ -30,7 +30,7 @@ Windows 10/11、macOS 和多数 Linux 发行版都自带 SSH 客户端。Windows
 
 ## 配置 SSH 密钥
 
-为了避免每次输入密码，可以配置 SSH 密钥认证。
+如需更便捷地连接服务器，可以配置 SSH 密钥认证。
 
 ### 生成密钥对
 
@@ -48,7 +48,7 @@ ssh-copy-id username@lab632.pibonds.com
 
 ### 复制公钥到 Windows 服务器
 
-Windows Server 不一定支持 `ssh-copy-id`。可先用密码登录服务器，再把本机公钥内容追加到服务器用户目录下的 `authorized_keys` 文件：
+Windows Server 不一定支持 `ssh-copy-id`。可先按管理员提供的信息登录服务器，再把本机公钥内容追加到服务器用户目录下的 `authorized_keys` 文件：
 
 ```powershell
 notepad $env:USERPROFILE\.ssh\authorized_keys
@@ -56,7 +56,7 @@ notepad $env:USERPROFILE\.ssh\authorized_keys
 
 将本机 `~/.ssh/id_ed25519.pub` 或 `%USERPROFILE%\.ssh\id_ed25519.pub` 的内容复制进去并保存。目录或文件不存在时先创建。
 
-### 测试免密登录
+### 测试密钥登录
 
 ```bash
 ssh username@lab632g.pibonds.com
@@ -103,7 +103,7 @@ ssh lab632
 2. 选择「Connect to Host...」
 3. 输入服务器地址：`username@lab632g.pibonds.com` 或 `username@lab632.pibonds.com`
 4. 选择操作系统类型（Windows / Linux）
-5. 输入密码（如已配置密钥则无需输入）
+5. 按管理员提供的信息完成认证
 
 ### 打开远程文件夹
 
@@ -127,9 +127,9 @@ ssh lab632
 
 ### 权限被拒绝
 
-- 确认用户名和密码正确
+- 确认用户名正确；访问凭据请咨询管理员
 - 检查服务器是否允许该用户 SSH 登录
-- 如果使用密钥登录失败，先用密码登录，再检查服务器上的 `authorized_keys`
+- 如果使用密钥登录失败，请咨询管理员确认账号状态，再检查服务器上的 `authorized_keys`
 
 ### VSCode 连接后插件不工作
 
