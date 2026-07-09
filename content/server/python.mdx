@@ -1,0 +1,272 @@
+---
+title: Python 环境
+description: Python 虚拟环境选择、项目管理和镜像源配置
+icon: Code
+---
+
+# Python 环境
+
+服务器上的 Python 项目建议使用独立虚拟环境，不要直接把包安装到系统 Python。新项目优先使用 `uv` 或 `pixi`；只有在已有教程、软件或历史项目明确依赖 `conda` 时，再使用 Miniforge3。
+
+## Windows GPU 服务器
+
+Windows GPU 服务器上做科研 Python，建议优先在 WSL 中构建环境。WSL 使用 Linux 用户态，更接近多数科研代码、PyTorch/CUDA 教程、服务器脚本和 conda-forge 的 `linux-64` 包生态，也更方便复现实验环境。
+
+Windows 原生 Python 只建议用于必须调用 Windows 图形界面软件、商业软件或系统工具的任务。普通 Python 脚本、深度学习训练、Jupyter、命令行实验和需要 Linux 依赖的项目，优先放在 WSL 中运行。
+
+## 怎么选择
+
+| 工具 | 适合场景 | 建议 |
+|------|----------|------|
+| `uv` | 纯 Python 项目、脚本、Web 服务、只需要 PyPI 包的科研代码 | 新项目优先选择 |
+| `pixi` | 需要 C/C++/Fortran 库、CUDA 相关包、跨平台可复现实验环境 | 复杂科研环境优先选择 |
+| Miniforge3 | 已有 `environment.yml`、教程要求 `conda`、需要手动维护传统 conda 环境 | 兼容历史项目时使用 |
+
+如果不确定，先选 `uv`。当遇到 `pip install` 编译失败、系统库缺失、GDAL/Qt/OpenCV/CUDA 等依赖复杂时，再改用 `pixi` 或 Miniforge3。
+
+## uv
+
+`uv` 适合大多数 Python 项目。它默认使用项目目录下的 `.venv`，并通过 `pyproject.toml` 和 `uv.lock` 固定依赖版本。
+
+### 创建项目
+
+```bash
+mkdir my-project
+cd my-project
+uv init
+uv python pin 3.12
+uv add numpy pandas matplotlib
+```
+
+运行脚本：
+
+```bash
+uv run python main.py
+```
+
+进入虚拟环境：
+
+```bash
+source .venv/bin/activate
+```
+
+### 复现实验环境
+
+已有 `pyproject.toml` 和 `uv.lock` 时，在项目目录运行：
+
+```bash
+uv sync
+uv run python main.py
+```
+
+提交代码时建议保留 `pyproject.toml` 和 `uv.lock`，不要提交 `.venv`。
+
+## pixi
+
+`pixi` 适合依赖较复杂的科研项目。它可以同时管理 conda-forge 包和 PyPI 包，适合需要二进制库、命令行工具或跨平台复现的项目。
+
+### 创建项目
+
+```bash
+mkdir my-project
+cd my-project
+pixi init
+pixi add python=3.12 numpy pandas matplotlib
+```
+
+运行命令：
+
+```bash
+pixi run python main.py
+```
+
+进入环境：
+
+```bash
+pixi shell
+```
+
+### 添加 PyPI 包
+
+如果包只在 PyPI 上发布：
+
+```bash
+pixi add --pypi some-package
+```
+
+提交代码时建议保留 `pixi.toml` 和 `pixi.lock`，不要提交 `.pixi`。
+
+## Miniforge3
+
+Miniforge3 是基于 conda-forge 的轻量 conda 发行版。需要兼容旧项目、课程材料或软件文档时可以使用。
+
+### 创建环境
+
+```bash
+conda create -n my-project python=3.12
+conda activate my-project
+conda install numpy pandas matplotlib
+```
+
+如果某些包只能从 PyPI 安装，可以在激活 conda 环境后使用 `pip`：
+
+```bash
+python -m pip install some-package
+```
+
+导出环境：
+
+```bash
+conda env export --from-history > environment.yml
+```
+
+从已有文件创建环境：
+
+```bash
+conda env create -f environment.yml
+```
+
+## 镜像源选择
+
+在实验室服务器和校园网环境中，PyPI 包下载优先使用阿里云镜像，conda 包下载优先使用 TUNA 镜像。校园网教育网出口带宽较小，访问 TUNA 镜像时仍可能速度较慢；如果下载长期不稳定，请联系管理员确认网络、DNS 或内网缓存方案。
+
+配置原则：
+
+- PyPI 包优先使用阿里云 PyPI 镜像。
+- 不要同时混用多个 PyPI 镜像源，避免同一个包从不同源解析出不一致版本。
+- conda 和 conda-forge 相关依赖优先使用 TUNA 镜像；如果管理员提供了实验室内网镜像或缓存地址，再按管理员提供的地址配置。
+- 不要使用 `sudo pip install` 或把包安装到系统 Python。
+
+## 配置 pip 镜像
+
+Linux 服务器上编辑用户级配置：
+
+```bash
+mkdir -p ~/.pip
+code ~/.pip/pip.conf
+```
+
+写入：
+
+```ini
+[global]
+index-url = http://mirrors.aliyun.com/pypi/simple/
+trusted-host = mirrors.aliyun.com
+timeout = 120
+```
+
+Windows 服务器上可以编辑：
+
+```powershell
+code $env:APPDATA\pip\pip.ini
+```
+
+写入同样内容：
+
+```ini
+[global]
+index-url = http://mirrors.aliyun.com/pypi/simple/
+trusted-host = mirrors.aliyun.com
+timeout = 120
+```
+
+临时安装某个包时也可以只对单次命令指定镜像：
+
+```bash
+python -m pip install numpy -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+```
+
+## 配置 uv 镜像
+
+项目级配置优先写在 `pyproject.toml`，这样同一项目在不同机器上行为一致：
+
+```toml
+[[tool.uv.index]]
+name = "aliyun"
+url = "http://mirrors.aliyun.com/pypi/simple/"
+default = true
+```
+
+也可以在单次命令中指定：
+
+```bash
+uv add numpy --default-index http://mirrors.aliyun.com/pypi/simple/
+uv sync --default-index http://mirrors.aliyun.com/pypi/simple/
+```
+
+## pixi 和 Miniforge3 的源
+
+`pixi` 和 Miniforge3 通常依赖 `conda-forge` channel。实验室默认推荐使用 TUNA 的 conda-forge 镜像，但校园网教育网出口带宽较小，实际下载速度可能不稳定。
+
+`pixi.toml` 在 WSL 或 Linux 服务器中建议写为：
+
+```toml
+[workspace]
+channels = ["https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge"]
+platforms = ["linux-64"]
+```
+
+如果确实在 Windows 原生环境中使用 `pixi`，平台应改为 `win-64`：
+
+```toml
+[workspace]
+channels = ["https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge"]
+platforms = ["win-64"]
+```
+
+Miniforge3 建议编辑 `~/.condarc`（Windows 为 `C:\Users\<YourUserName>\.condarc`）：
+
+```yaml
+channels:
+  - conda-forge
+show_channel_urls: true
+channel_priority: strict
+custom_channels:
+  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+```
+
+如果旧项目依赖 `defaults`，可以使用兼容配置：
+
+```yaml
+channels:
+  - conda-forge
+  - defaults
+show_channel_urls: true
+channel_priority: strict
+default_channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+custom_channels:
+  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+```
+
+配置后清理索引缓存：
+
+```bash
+conda clean -i
+```
+
+如果某个项目既有 conda 依赖又有 PyPI 依赖，优先用 conda 或 pixi 安装底层二进制依赖，再用已配置阿里云镜像的 `pip` 安装只在 PyPI 上发布的包。
+
+## 常见问题
+
+### 应该把环境放在哪里
+
+项目环境建议放在项目目录内或用户目录内，例如 `.venv`、`.pixi` 或 `~/miniforge3/envs/<env-name>`。不要把个人环境放到公共目录。
+
+### 能不能共用别人的环境
+
+不建议。共用环境会导致包版本互相影响，也难以复现实验结果。需要复现时应共享 `pyproject.toml`、`uv.lock`、`pixi.toml`、`pixi.lock` 或 `environment.yml`。
+
+### VSCode 选不到解释器
+
+先确认环境已经创建成功，再在 VSCode 中选择对应解释器：
+
+- `uv`：选择项目目录下 `.venv/bin/python`
+- `pixi`：优先用 `pixi run code .` 从环境中打开项目
+- Miniforge3：选择 `~/miniforge3/envs/<env-name>/bin/python`
+
+### 下载仍然很慢
+
+先确认 PyPI 包使用的是阿里云镜像，conda 包使用的是 TUNA 镜像。仍然很慢时，联系管理员确认服务器网络、DNS 和是否需要使用实验室内网缓存。

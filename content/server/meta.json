@@ -1,6 +1,6 @@
 {
   "title": "服务器",
-  "pages": ["index", "windows-server", "linux-server", "remote-desktop", "ssh-vscode", "smb"],
+  "pages": ["index", "windows-server", "linux-server", "remote-desktop", "ssh-vscode", "smb", "python"],
   "defaultOpen": true,
   "icon": "Server"
 }
