@@ -13,7 +13,7 @@ export default defineConfig({
   },
   site: {
     name: "LabWiki",
-    baseUrl: "https://cug-cs-632.github.io/labwiki/",
+    baseUrl: "https://cugcs632.github.io/labwiki/",
   },
 })
   .layouts({
